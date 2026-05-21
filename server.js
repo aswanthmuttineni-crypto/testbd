@@ -22,6 +22,7 @@ app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:4200" }));
 app.use(express.json({ limit: "10mb" }));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+app.get("/", (_req, res) => res.send("Backend Working Successfully"));
 app.get("/api/health", (_req, res) => res.json({ status: "ok" }));
 app.use("/api/auth", authRoutes);
 app.use("/api/rooms", roomRoutes);
