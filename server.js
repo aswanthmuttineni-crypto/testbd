@@ -1,0 +1,43 @@
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
+import { connectDb } from "./src/config/db.js";
+import authRoutes from "./src/routes/auth.routes.js";
+import roomRoutes from "./src/routes/room.routes.js";
+import tenantRoutes from "./src/routes/tenant.routes.js";
+import rentRoutes from "./src/routes/rent.routes.js";
+import expenseRoutes from "./src/routes/expense.routes.js";
+import reportRoutes from "./src/routes/report.routes.js";
+import settingsRoutes from "./src/routes/settings.routes.js";
+
+dotenv.config();
+
+const app = express();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:4200" }));
+app.use(express.json({ limit: "10mb" }));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+app.get("/api/health", (_req, res) => res.json({ status: "ok" }));
+app.use("/api/auth", authRoutes);
+app.use("/api/rooms", roomRoutes);
+app.use("/api/tenants", tenantRoutes);
+app.use("/api/rents", rentRoutes);
+app.use("/api/expenses", expenseRoutes);
+app.use("/api/reports", reportRoutes);
+app.use("/api/settings", settingsRoutes);
+
+app.use((err, _req, res, _next) => {
+  console.error(err);
+  res.status(err.status || 500).json({ message: err.message || "Server error" });
+});
+
+const port = process.env.PORT || 5000;
+
+connectDb().then(() => {
+  app.listen(port, () => console.log(`Hostel API running on http://localhost:${port}`));
+});
