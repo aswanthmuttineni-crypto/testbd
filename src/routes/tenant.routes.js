@@ -12,6 +12,30 @@ function fileMeta(file) {
   return { filename: file.originalname, path: `/uploads/${file.filename}`, mimetype: file.mimetype };
 }
 
+function tenantPayload(body) {
+  const allowed = [
+    "name",
+    "phone",
+    "email",
+    "aadhaarNo",
+    "guardianName",
+    "guardianPhone",
+    "address",
+    "roomId",
+    "bedNo",
+    "joiningDate",
+    "advanceAmount",
+    "monthlyRent",
+    "status",
+    "notes"
+  ];
+
+  return allowed.reduce((payload, key) => {
+    if (body[key] !== undefined) payload[key] = body[key];
+    return payload;
+  }, {});
+}
+
 async function validateBed({ roomId, bedNo, tenantId }) {
   const room = await Room.findById(roomId);
   if (!room) return "Room not found";
@@ -39,7 +63,7 @@ router.post("/", upload.single("idProof"), async (req, res, next) => {
   try {
     const message = await validateBed(req.body);
     if (message) return res.status(400).json({ message });
-    const tenant = await Tenant.create({ ...req.body, idProof: fileMeta(req.file) });
+    const tenant = await Tenant.create({ ...tenantPayload(req.body), idProof: fileMeta(req.file) });
     res.status(201).json(await tenant.populate("roomId", "roomNo floor capacity"));
   } catch (error) {
     next(error);
@@ -50,7 +74,7 @@ router.put("/:id", upload.single("idProof"), async (req, res, next) => {
   try {
     const message = await validateBed({ ...req.body, tenantId: req.params.id });
     if (message) return res.status(400).json({ message });
-    const patch = { ...req.body };
+    const patch = tenantPayload(req.body);
     if (req.file) patch.idProof = fileMeta(req.file);
     const tenant = await Tenant.findByIdAndUpdate(req.params.id, patch, { new: true, runValidators: true }).populate("roomId", "roomNo floor capacity");
     if (!tenant) return res.status(404).json({ message: "Tenant not found" });

@@ -11,6 +11,7 @@ import rentRoutes from "./src/routes/rent.routes.js";
 import expenseRoutes from "./src/routes/expense.routes.js";
 import reportRoutes from "./src/routes/report.routes.js";
 import settingsRoutes from "./src/routes/settings.routes.js";
+import notificationRoutes from "./src/routes/notification.routes.js";
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ const __dirname = path.dirname(__filename);
 
 const defaultAllowedOrigins = [
   "http://localhost:4200",
+  "http://127.0.0.1:4200",
   "https://ajstest.netlify.app"
 ];
 
@@ -53,6 +55,7 @@ app.use("/api/rents", rentRoutes);
 app.use("/api/expenses", expenseRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/settings", settingsRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 app.use((err, _req, res, _next) => {
   console.error(err);
