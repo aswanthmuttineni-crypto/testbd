@@ -80,7 +80,8 @@ router.post("/monthly-dues/email", async (req, res, next) => {
 
     res.json({ message: "Due emails sent", sent, monthlyDues });
   } catch (error) {
-    next(error);
+    console.error("SMTP error:", error?.message, error?.code, error?.response);
+    res.status(500).json({ message: error?.message || "Email failed", code: error?.code });
   }
 });
 
