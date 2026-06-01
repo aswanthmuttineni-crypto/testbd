@@ -1,7 +1,7 @@
 import { Router } from "express";
 import Setting from "../models/Setting.js";
 import Expense from "../models/Expense.js";
-import { protect } from "../middleware/auth.js";
+import { protect, requireAdmin } from "../middleware/auth.js";
 
 const router = Router();
 
@@ -29,7 +29,7 @@ router.get("/", protect, async (_req, res, next) => {
   }
 });
 
-router.put("/", protect, async (req, res, next) => {
+router.put("/", protect, requireAdmin, async (req, res, next) => {
   try {
     const settings = await getSettings();
     Object.assign(settings, req.body);

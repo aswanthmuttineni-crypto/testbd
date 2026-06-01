@@ -1,6 +1,6 @@
 import { Router } from "express";
 import Setting from "../models/Setting.js";
-import { protect } from "../middleware/auth.js";
+import { protect, requireAdmin } from "../middleware/auth.js";
 import { getMonthlyDues } from "../utils/monthlyDues.js";
 
 const router = Router();
@@ -48,7 +48,7 @@ router.get("/monthly-dues", async (_req, res, next) => {
   }
 });
 
-router.post("/monthly-dues/email", async (req, res, next) => {
+router.post("/monthly-dues/email", requireAdmin, async (req, res, next) => {
   try {
     const monthlyDues = await getMonthlyDues();
     const settings = await Setting.findOne();

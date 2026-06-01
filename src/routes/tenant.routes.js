@@ -1,7 +1,7 @@
 import { Router } from "express";
 import Tenant from "../models/Tenant.js";
 import Room from "../models/Room.js";
-import { protect } from "../middleware/auth.js";
+import { protect, requireAdmin } from "../middleware/auth.js";
 import { upload } from "../middleware/upload.js";
 
 const router = Router();
@@ -59,7 +59,7 @@ router.get("/", async (_req, res, next) => {
   }
 });
 
-router.post("/", upload.single("idProof"), async (req, res, next) => {
+router.post("/", requireAdmin, upload.single("idProof"), async (req, res, next) => {
   try {
     const message = await validateBed(req.body);
     if (message) return res.status(400).json({ message });
@@ -70,7 +70,7 @@ router.post("/", upload.single("idProof"), async (req, res, next) => {
   }
 });
 
-router.put("/:id", upload.single("idProof"), async (req, res, next) => {
+router.put("/:id", requireAdmin, upload.single("idProof"), async (req, res, next) => {
   try {
     const message = await validateBed({ ...req.body, tenantId: req.params.id });
     if (message) return res.status(400).json({ message });
@@ -84,7 +84,7 @@ router.put("/:id", upload.single("idProof"), async (req, res, next) => {
   }
 });
 
-router.delete("/:id", async (req, res, next) => {
+router.delete("/:id", requireAdmin, async (req, res, next) => {
   try {
     await Tenant.findByIdAndDelete(req.params.id);
     res.status(204).end();

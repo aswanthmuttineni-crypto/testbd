@@ -12,3 +12,10 @@ export function protect(req, res, next) {
     res.status(401).json({ message: "Invalid or expired token" });
   }
 }
+
+export function requireAdmin(req, res, next) {
+  if (req.user?.role !== "ADMIN") {
+    return res.status(403).json({ message: "Admin access required" });
+  }
+  next();
+}

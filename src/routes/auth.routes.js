@@ -46,4 +46,34 @@ router.post("/login", async (req, res, next) => {
 
 router.get("/profile", protect, (req, res) => res.json(req.user));
 
+// Called internally after tenant creation — creates a TENANT user account
+router.post("/create-tenant-user", protect, async (req, res, next) => {
+  try {
+    const { name, email } = req.body;
+    if (!email) return res.status(400).json({ message: "Email required" });
+    const exists = await User.findOne({ email });
+    if (exists) return res.status(409).json({ message: "User already exists for this email" });
+    const password = Math.random().toString(36).slice(-8);
+    const user = await User.create({
+      name,
+      email,
+      password: await bcrypt.hash(password, 10),
+      plainPassword: password,
+      role: "TENANT"
+    });
+    res.status(201).json({ user: { id: user._id, name: user.name, email: user.email, role: user.role }, password });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/tenant-credentials", protect, async (req, res, next) => {
+  try {
+    const tenants = await User.find({ role: "TENANT" }).select("name email plainPassword createdAt").lean();
+    res.json(tenants);
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;
