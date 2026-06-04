@@ -1,11 +1,20 @@
 import { Router } from "express";
 import Rent from "../models/Rent.js";
+import Tenant from "../models/Tenant.js";
 import { protect, requireAdmin } from "../middleware/auth.js";
 
 const router = Router();
 router.use(protect);
 
-router.get("/", async (_req, res, next) => {
+router.get("/me", async (req, res, next) => {
+  try {
+    const tenant = await Tenant.findOne({ email: req.user.email }).select("_id");
+    if (!tenant) return res.status(404).json({ message: "Tenant profile not found" });
+    res.json(await Rent.find({ tenantId: tenant._id }).sort({ year: -1, createdAt: -1 }));
+  } catch (error) { next(error); }
+});
+
+router.get("/", requireAdmin, async (_req, res, next) => {
   try {
     res.json(await Rent.find().populate("tenantId", "name phone monthlyRent").sort({ createdAt: -1 }));
   } catch (error) { next(error); }

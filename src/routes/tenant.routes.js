@@ -50,7 +50,39 @@ async function validateBed({ roomId, bedNo, tenantId }) {
   return occupied ? "This bed is already assigned" : "";
 }
 
-router.get("/", async (_req, res, next) => {
+router.get("/me", async (req, res, next) => {
+  try {
+    const tenant = await Tenant.findOne({ email: req.user.email }).populate("roomId", "roomNo floor capacity");
+    if (!tenant) return res.status(404).json({ message: "Tenant profile not found" });
+    res.json(tenant);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.put("/me", upload.single("idProof"), async (req, res, next) => {
+  try {
+    const allowed = ["phone", "aadhaarNo", "guardianName", "guardianPhone", "address", "notes"];
+    const patch = allowed.reduce((payload, key) => {
+      if (req.body[key] !== undefined) payload[key] = req.body[key];
+      return payload;
+    }, {});
+    if (req.file) patch.idProof = fileMeta(req.file);
+
+    const tenant = await Tenant.findOneAndUpdate(
+      { email: req.user.email },
+      patch,
+      { new: true, runValidators: true }
+    ).populate("roomId", "roomNo floor capacity");
+
+    if (!tenant) return res.status(404).json({ message: "Tenant profile not found" });
+    res.json(tenant);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/", requireAdmin, async (_req, res, next) => {
   try {
     const tenants = await Tenant.find().populate("roomId", "roomNo floor capacity").sort({ createdAt: -1 });
     res.json(tenants);

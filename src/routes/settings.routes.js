@@ -21,7 +21,7 @@ router.get("/public", async (_req, res, next) => {
   }
 });
 
-router.get("/", protect, async (_req, res, next) => {
+router.get("/", protect, requireAdmin, async (_req, res, next) => {
   try {
     res.json(await getSettings());
   } catch (error) {

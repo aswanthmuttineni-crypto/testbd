@@ -15,7 +15,7 @@ async function withOccupancy(query = {}) {
   });
 }
 
-router.get("/", async (_req, res, next) => {
+router.get("/", requireAdmin, async (_req, res, next) => {
   try { res.json(await withOccupancy()); } catch (error) { next(error); }
 });
 

@@ -11,7 +11,7 @@ function fileMeta(file) {
   return { filename: file.originalname, path: `/uploads/${file.filename}`, mimetype: file.mimetype };
 }
 
-router.get("/", async (_req, res, next) => {
+router.get("/", requireAdmin, async (_req, res, next) => {
   try {
     res.json(await Expense.find().sort({ date: -1 }));
   } catch (error) { next(error); }
