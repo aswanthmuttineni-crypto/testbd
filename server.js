@@ -46,7 +46,12 @@ app.use(cors({
 app.use(express.json({ limit: "10mb" }));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-app.get("/", (_req, res) => res.send("Backend Working Successfully"));
+if (process.env.NODE_ENV === "production") {
+  const frontendDist = path.join(__dirname, "..", "frontend", "dist", "frontend");
+  app.use(express.static(frontendDist));
+  app.get("/", (_req, res) => res.sendFile(path.join(frontendDist, "index.html")));
+}
+
 app.get("/api/health", (_req, res) => res.json({ status: "ok" }));
 app.use("/api/auth", authRoutes);
 app.use("/api/rooms", roomRoutes);
@@ -56,6 +61,12 @@ app.use("/api/expenses", expenseRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/settings", settingsRoutes);
 app.use("/api/notifications", notificationRoutes);
+
+if (process.env.NODE_ENV === "production") {
+  app.get("*", (_req, res) => {
+    res.sendFile(path.join(__dirname, "..", "frontend", "dist", "frontend", "index.html"));
+  });
+}
 
 app.use((err, _req, res, _next) => {
   console.error(err);

@@ -183,6 +183,10 @@ export async function sendVerificationCode({ email, phone, code }) {
     throw new Error(errors[0] || "No verification sender is configured");
   }
 
+  if (!sent.length) {
+    console.info("[Dev Verification] admin registration code:", code);
+  }
+
   return {
     sent,
     errors,
