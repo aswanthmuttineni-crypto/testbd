@@ -19,19 +19,45 @@ function isProductionDelivery() {
   );
 }
 
-export async function sendBrevoEmail({ to, subject, text }) {
+export async function sendBrevoEmail({ to, subject, text, html, replyTo }) {
+  const senderEmail = process.env.BREVO_SENDER || process.env.SMTP_FROM || "no-reply@brevosend.com";
+  const senderName = process.env.SMTP_NAME || "Hostel Management";
+
+  const buildToList = (t) => {
+    if (Array.isArray(t)) return t.map((item) => (typeof item === "string" ? { email: item } : item));
+    if (typeof t === "string") return [{ email: t }];
+    if (t && typeof t === "object" && t.email) return [t];
+    return [];
+  };
+
+  const toList = buildToList(to);
+  const reply = replyTo
+    ? (typeof replyTo === "string" ? { email: replyTo, name: senderName } : replyTo)
+    : { email: process.env.SMTP_FROM || process.env.ADMIN_EMAIL || process.env.BREVO_REPLY_TO || "" , name: senderName };
+
+  const payload = {
+    sender: { name: senderName, email: senderEmail },
+    to: toList,
+    replyTo: reply,
+    subject,
+    htmlContent: html || text,
+    textContent: text
+  };
+
+  // Log payload to help debug Brevo 'invalid_request' errors
+  try {
+    console.info("[Brevo] email payload:", JSON.stringify(payload, null, 2));
+  } catch (err) {
+    /* ignore logging errors */
+  }
+
   const res = await fetch("https://api.brevo.com/v3/smtp/email", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "api-key": process.env.BREVO_API_KEY
     },
-    body: JSON.stringify({
-      sender: { name: "Hostel Management", email: process.env.SMTP_FROM || process.env.BREVO_SENDER },
-      to: [{ email: to }],
-      subject,
-      textContent: text
-    })
+    body: JSON.stringify(payload)
   });
 
   if (!res.ok) {
