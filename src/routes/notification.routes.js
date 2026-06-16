@@ -73,17 +73,23 @@ router.post("/monthly-dues/email", requireAdmin, async (req, res, next) => {
       }
     }
 
-    for (const due of monthlyDues.dues) {
+      for (const due of monthlyDues.dues) {
       if (!due.tenant.email) {
         skipped.push({ tenant: due.tenant.name, reason: "No tenant email" });
         continue;
       }
 
       try {
+        const dueDate = (() => {
+          const m = new Date(`${monthlyDues.month} 1, ${monthlyDues.year}`);
+          return new Date(monthlyDues.year, m.getMonth() + 1, 0).toLocaleDateString('en-IN');
+        })();
+        const emailText = `Hello ${due.tenant.name},\n\nWe hope you are doing well.\n\nThis is a friendly reminder that your hostel rent for **${monthlyDues.month} ${monthlyDues.year}** is currently due.\n\n━━━━━━━━━━━━━━━━━━━━━━\n📌 Rent Details\n━━━━━━━━━━━━━━━━━━━━━━\nRoom Number: ${roomNo(due.tenant)}\nBed Number: ${due.tenant.bedNo}\nMonthly Rent: ₹${due.amount}\nDue Date: ${dueDate}\n\n⚠️ Outstanding Amount: **₹${due.amount}**\n\nKindly make the payment at your earliest convenience to avoid any late fees or inconvenience.\n\nIf you have already completed the payment, please ignore this message.\n\nFor any questions or assistance, feel free to contact the hostel administration.\n\nThank you for staying with us.\n\nBest regards,\n\n**Ajs WomanS PG**\n📞 8555831614\n📧 Muthineniaswanth@gmail.com`;
+
         const result = await sendBrevoEmail({
           to: due.tenant.email,
           subject: `Rent due reminder - ${monthlyDues.month} ${monthlyDues.year}`,
-          text: `Hello ${due.tenant.name},\n\nYour rent due for ${monthlyDues.month} ${monthlyDues.year} is Rs.${due.amount}.\n\nPlease contact the hostel admin if this was already paid.`
+          text: emailText
         });
         sent.push({ to: due.tenant.email, tenant: due.tenant.name, messageId: result?.messageId });
       } catch (error) {
@@ -222,10 +228,16 @@ router.post("/monthly-dues/reminders", requireAdmin, async (req, res) => {
       for (const due of monthlyDues.dues) {
         if (!due.tenant.email) continue;
         try {
+          const dueDate = (() => {
+            const m = new Date(`${monthlyDues.month} 1, ${monthlyDues.year}`);
+            return new Date(monthlyDues.year, m.getMonth() + 1, 0).toLocaleDateString('en-IN');
+          })();
+          const emailText = `Hello ${due.tenant.name},\n\nWe hope you are doing well.\n\nThis is a friendly reminder that your hostel rent for **${monthlyDues.month} ${monthlyDues.year}** is currently due.\n\n━━━━━━━━━━━━━━━━━━━━━━\n📌 Rent Details\n━━━━━━━━━━━━━━━━━━━━━━\nRoom Number: ${roomNo(due.tenant)}\nBed Number: ${due.tenant.bedNo}\nMonthly Rent: ₹${due.amount}\nDue Date: ${dueDate}\n\n⚠️ Outstanding Amount: **₹${due.amount}**\n\nKindly make the payment at your earliest convenience to avoid any late fees or inconvenience.\n\nIf you have already completed the payment, please ignore this message.\n\nFor any questions or assistance, feel free to contact the hostel administration.\n\nThank you for staying with us.\n\nBest regards,\n\n**Ajs WomanS PG**\n📞 8555831614\n📧 Muthineniaswanth@gmail.com`;
+
           await sendBrevoEmail({
             to: due.tenant.email,
             subject: `Rent due reminder - ${monthlyDues.month} ${monthlyDues.year}`,
-            text: `Hello ${due.tenant.name},\n\nYour rent due for ${monthlyDues.month} ${monthlyDues.year} is Rs.${due.amount}.\n\nPlease contact the hostel admin if this was already paid.`
+            text: emailText
           });
           sent.email.push(due.tenant.email);
         } catch (error) {

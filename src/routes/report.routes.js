@@ -29,6 +29,7 @@ router.get("/summary", async (_req, res, next) => {
       profit: totalIncome - totalExpenses,
       occupiedRooms: occupiedRoomIds.size,
       vacantRooms: Math.max(rooms.length - occupiedRoomIds.size, 0),
+      activeTenantCount: activeTenants.length,
       pendingRent,
       currentMonthDues: monthlyDues.dues.reduce((sum, due) => sum + due.amount, 0),
       monthlyDues,
