@@ -84,12 +84,71 @@ router.post("/monthly-dues/email", requireAdmin, async (req, res, next) => {
           const m = new Date(`${monthlyDues.month} 1, ${monthlyDues.year}`);
           return new Date(monthlyDues.year, m.getMonth() + 1, 0).toLocaleDateString('en-IN');
         })();
-        const emailText = `Hello ${due.tenant.name},\n\nWe hope you are doing well.\n\nThis is a friendly reminder that your hostel rent for **${monthlyDues.month} ${monthlyDues.year}** is currently due.\n\n━━━━━━━━━━━━━━━━━━━━━━\n📌 Rent Details\n━━━━━━━━━━━━━━━━━━━━━━\nRoom Number: ${roomNo(due.tenant)}\nBed Number: ${due.tenant.bedNo}\nMonthly Rent: ₹${due.amount}\nDue Date: ${dueDate}\n\n⚠️ Outstanding Amount: **₹${due.amount}**\n\nKindly make the payment at your earliest convenience to avoid any late fees or inconvenience.\n\nIf you have already completed the payment, please ignore this message.\n\nFor any questions or assistance, feel free to contact the hostel administration.\n\nThank you for staying with us.\n\nBest regards,\n\n**Ajs WomanS PG**\n📞 8555831614\n📧 Muthineniaswanth@gmail.com`;
+
+        const plainText = [
+          `Hello ${due.tenant.name},`,
+          '',
+          'We hope you are doing well.',
+          '',
+          `This is a friendly reminder that your hostel rent for ${monthlyDues.month} ${monthlyDues.year} is currently due.`,
+          '',
+          '━━━━━━━━━━━━━━━━━━━━━━',
+          '📌 Rent Details',
+          '━━━━━━━━━━━━━━━━━━━━━━',
+          `Room Number: ${roomNo(due.tenant)}`,
+          `Bed Number: ${due.tenant.bedNo}`,
+          `Monthly Rent: ₹${due.amount}`,
+          `Due Date: ${dueDate}`,
+          '',
+          `⚠️ Outstanding Amount: ₹${due.amount}`,
+          '',
+          'Kindly make the payment at your earliest convenience to avoid any late fees or inconvenience.',
+          '',
+          'If you have already completed the payment, please ignore this message.',
+          '',
+          'For any questions or assistance, feel free to contact the hostel administration.',
+          '',
+          'Thank you for staying with us.',
+          '',
+          'Best regards,',
+          '',
+          'Ajs WomanS PG',
+          '📞 8555831614',
+          '📧 Muthineniaswanth@gmail.com'
+        ].join('\n');
+
+        const iconPin = 'https://fonts.gstatic.com/s/e/notoemoji/17.0/1f4cc/32.png';
+        const iconWarn = 'https://fonts.gstatic.com/s/e/notoemoji/17.0/26a0_fe0f/32.png';
+        const iconPhone = 'https://fonts.gstatic.com/s/e/notoemoji/17.0/1f4de/32.png';
+        const iconMail = 'https://fonts.gstatic.com/s/e/notoemoji/17.0/1f4e7/32.png';
+
+        const htmlText = `
+          <p>Hello ${due.tenant.name},</p>
+          <p>We hope you are doing well.</p>
+          <p>This is a friendly reminder that your hostel rent for <strong>${monthlyDues.month} ${monthlyDues.year}</strong> is currently due.</p>
+          <p>━━━━━━━━━━━━━━━━━━━━━━<br/>
+          <img src="${iconPin}" alt="📌" width="20" style="vertical-align:middle;"/> <strong> Rent Details</strong><br/>
+          ━━━━━━━━━━━━━━━━━━━━━━</p>
+          <p>Room Number: ${roomNo(due.tenant)}<br/>
+          Bed Number: ${due.tenant.bedNo}<br/>
+          Monthly Rent: ₹${due.amount}<br/>
+          Due Date: ${dueDate}</p>
+          <p><img src="${iconWarn}" alt="⚠️" width="20" style="vertical-align:middle;"/> <strong>Outstanding Amount: ₹${due.amount}</strong></p>
+          <p>Kindly make the payment at your earliest convenience to avoid any late fees or inconvenience.</p>
+          <p>If you have already completed the payment, please ignore this message.</p>
+          <p>For any questions or assistance, feel free to contact the hostel administration.</p>
+          <p>Thank you for staying with us.</p>
+          <p>Best regards,</p>
+          <p><strong>Ajs WomanS PG</strong><br/>
+          <img src="${iconPhone}" alt="📞" width="20" style="vertical-align:middle;"/> 8555831614<br/>
+          <img src="${iconMail}" alt="📧" width="20" style="vertical-align:middle;"/> <a href="mailto:Muthineniaswanth@gmail.com">Muthineniaswanth@gmail.com</a></p>
+        `;
 
         const result = await sendBrevoEmail({
           to: due.tenant.email,
           subject: `Rent due reminder - ${monthlyDues.month} ${monthlyDues.year}`,
-          text: emailText
+          text: plainText,
+          html: htmlText
         });
         sent.push({ to: due.tenant.email, tenant: due.tenant.name, messageId: result?.messageId });
       } catch (error) {
@@ -232,12 +291,71 @@ router.post("/monthly-dues/reminders", requireAdmin, async (req, res) => {
             const m = new Date(`${monthlyDues.month} 1, ${monthlyDues.year}`);
             return new Date(monthlyDues.year, m.getMonth() + 1, 0).toLocaleDateString('en-IN');
           })();
-          const emailText = `Hello ${due.tenant.name},\n\nWe hope you are doing well.\n\nThis is a friendly reminder that your hostel rent for **${monthlyDues.month} ${monthlyDues.year}** is currently due.\n\n━━━━━━━━━━━━━━━━━━━━━━\n📌 Rent Details\n━━━━━━━━━━━━━━━━━━━━━━\nRoom Number: ${roomNo(due.tenant)}\nBed Number: ${due.tenant.bedNo}\nMonthly Rent: ₹${due.amount}\nDue Date: ${dueDate}\n\n⚠️ Outstanding Amount: **₹${due.amount}**\n\nKindly make the payment at your earliest convenience to avoid any late fees or inconvenience.\n\nIf you have already completed the payment, please ignore this message.\n\nFor any questions or assistance, feel free to contact the hostel administration.\n\nThank you for staying with us.\n\nBest regards,\n\n**Ajs WomanS PG**\n📞 8555831614\n📧 Muthineniaswanth@gmail.com`;
+
+          const plainText = [
+            `Hello ${due.tenant.name},`,
+            '',
+            'We hope you are doing well.',
+            '',
+            `This is a friendly reminder that your hostel rent for ${monthlyDues.month} ${monthlyDues.year} is currently due.`,
+            '',
+            '━━━━━━━━━━━━━━━━━━━━━━',
+            '📌 Rent Details',
+            '━━━━━━━━━━━━━━━━━━━━━━',
+            `Room Number: ${roomNo(due.tenant)}`,
+            `Bed Number: ${due.tenant.bedNo}`,
+            `Monthly Rent: ₹${due.amount}`,
+            `Due Date: ${dueDate}`,
+            '',
+            `⚠️ Outstanding Amount: ₹${due.amount}`,
+            '',
+            'Kindly make the payment at your earliest convenience to avoid any late fees or inconvenience.',
+            '',
+            'If you have already completed the payment, please ignore this message.',
+            '',
+            'For any questions or assistance, feel free to contact the hostel administration.',
+            '',
+            'Thank you for staying with us.',
+            '',
+            'Best regards,',
+            '',
+            'Ajs WomanS PG',
+            '📞 8555831614',
+            '📧 Muthineniaswanth@gmail.com'
+          ].join('\n');
+
+          const iconPin = 'https://fonts.gstatic.com/s/e/notoemoji/17.0/1f4cc/32.png';
+          const iconWarn = 'https://fonts.gstatic.com/s/e/notoemoji/17.0/26a0_fe0f/32.png';
+          const iconPhone = 'https://fonts.gstatic.com/s/e/notoemoji/17.0/1f4de/32.png';
+          const iconMail = 'https://fonts.gstatic.com/s/e/notoemoji/17.0/1f4e7/32.png';
+
+          const htmlText = `
+            <p>Hello ${due.tenant.name},</p>
+            <p>We hope you are doing well.</p>
+            <p>This is a friendly reminder that your hostel rent for <strong>${monthlyDues.month} ${monthlyDues.year}</strong> is currently due.</p>
+            <p>━━━━━━━━━━━━━━━━━━━━━━<br/>
+            <img src="${iconPin}" alt="📌" width="20" style="vertical-align:middle;"/> <strong> Rent Details</strong><br/>
+            ━━━━━━━━━━━━━━━━━━━━━━</p>
+            <p>Room Number: ${roomNo(due.tenant)}<br/>
+            Bed Number: ${due.tenant.bedNo}<br/>
+            Monthly Rent: ₹${due.amount}<br/>
+            Due Date: ${dueDate}</p>
+            <p><img src="${iconWarn}" alt="⚠️" width="20" style="vertical-align:middle;"/> <strong>Outstanding Amount: ₹${due.amount}</strong></p>
+            <p>Kindly make the payment at your earliest convenience to avoid any late fees or inconvenience.</p>
+            <p>If you have already completed the payment, please ignore this message.</p>
+            <p>For any questions or assistance, feel free to contact the hostel administration.</p>
+            <p>Thank you for staying with us.</p>
+            <p>Best regards,</p>
+            <p><strong>Ajs WomanS PG</strong><br/>
+            <img src="${iconPhone}" alt="📞" width="20" style="vertical-align:middle;"/> 8555831614<br/>
+            <img src="${iconMail}" alt="📧" width="20" style="vertical-align:middle;"/> <a href="mailto:Muthineniaswanth@gmail.com">Muthineniaswanth@gmail.com</a></p>
+          `;
 
           await sendBrevoEmail({
             to: due.tenant.email,
             subject: `Rent due reminder - ${monthlyDues.month} ${monthlyDues.year}`,
-            text: emailText
+            text: plainText,
+            html: htmlText
           });
           sent.email.push(due.tenant.email);
         } catch (error) {
