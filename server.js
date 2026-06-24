@@ -12,6 +12,9 @@ import expenseRoutes from "./src/routes/expense.routes.js";
 import reportRoutes from "./src/routes/report.routes.js";
 import settingsRoutes from "./src/routes/settings.routes.js";
 import notificationRoutes from "./src/routes/notification.routes.js";
+import foodMenuRoutes from "./src/routes/foodmenu.routes.js";
+import complaintRoutes from "./src/routes/complaint.routes.js";
+import noticeRoutes from "./src/routes/notice.routes.js";
 
 dotenv.config();
 
@@ -61,6 +64,9 @@ app.use("/api/expenses", expenseRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/settings", settingsRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/food-menu", foodMenuRoutes);
+app.use("/api/complaints", complaintRoutes);
+app.use("/api/notices", noticeRoutes);
 
 if (process.env.NODE_ENV === "production") {
   app.get("*", (_req, res) => {
@@ -75,6 +81,11 @@ app.use((err, _req, res, _next) => {
 
 const port = process.env.PORT || 5000;
 
-connectDb().then(() => {
-  app.listen(port, () => console.log(`Hostel API running on http://localhost:${port}`));
-});
+// Export app for tests; only start server when not in test mode
+export default app;
+
+if (process.env.NODE_ENV !== 'test') {
+  connectDb().then(() => {
+    app.listen(port, () => console.log(`Hostel API running on http://localhost:${port}`));
+  });
+}
