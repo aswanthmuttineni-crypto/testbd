@@ -32,6 +32,7 @@ const settingSchema = new mongoose.Schema(
       ]
     },
     notificationEmail: { type: String, default: "" },
+    adminPhone: { type: String, default: "9381097099" },
     emailNotificationsEnabled: { type: Boolean, default: false }
   },
   { timestamps: true }

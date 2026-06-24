@@ -60,6 +60,8 @@ router.post("/monthly-dues/email", requireAdmin, async (req, res, next) => {
     const text = monthlyDues.dues.length
       ? monthlyDues.dues.map(dueText).join("\n")
       : "No pending rent dues for this month.";
+    const adminPhone = settings?.adminPhone || process.env.ADMIN_PHONE || '9381097099';
+    const adminContactEmail = settings?.notificationEmail || settings?.adminEmail || process.env.ADMIN_EMAIL || 'muthineniaswanth@gmail.com';
 
     const sent = [];
     const skipped = [];
@@ -113,8 +115,8 @@ router.post("/monthly-dues/email", requireAdmin, async (req, res, next) => {
           'Best regards,',
           '',
           'Ajs WomanS PG',
-          '📞 8555831614',
-          '📧 Muthineniaswanth@gmail.com'
+          `📞 ${adminPhone}`,
+          `📧 ${adminContactEmail}`
         ].join('\n');
 
         const iconPin = 'https://fonts.gstatic.com/s/e/notoemoji/17.0/1f4cc/32.png';
@@ -140,8 +142,8 @@ router.post("/monthly-dues/email", requireAdmin, async (req, res, next) => {
           <p>Thank you for staying with us.</p>
           <p>Best regards,</p>
           <p><strong>Ajs WomanS PG</strong><br/>
-          <img src="${iconPhone}" alt="📞" width="20" style="vertical-align:middle;"/> 8555831614<br/>
-          <img src="${iconMail}" alt="📧" width="20" style="vertical-align:middle;"/> <a href="mailto:Muthineniaswanth@gmail.com">Muthineniaswanth@gmail.com</a></p>
+          <img src="${iconPhone}" alt="📞" width="20" style="vertical-align:middle;"/> ${adminPhone}<br/>
+          <img src="${iconMail}" alt="📧" width="20" style="vertical-align:middle;"/> <a href="mailto:${adminContactEmail}">${adminContactEmail}</a></p>
         `;
 
         const result = await sendBrevoEmail({
@@ -320,8 +322,8 @@ router.post("/monthly-dues/reminders", requireAdmin, async (req, res) => {
             'Best regards,',
             '',
             'Ajs WomanS PG',
-            '📞 8555831614',
-            '📧 Muthineniaswanth@gmail.com'
+            `📞 ${adminPhone}`,
+            `📧 ${adminContactEmail}`
           ].join('\n');
 
           const iconPin = 'https://fonts.gstatic.com/s/e/notoemoji/17.0/1f4cc/32.png';
@@ -347,8 +349,8 @@ router.post("/monthly-dues/reminders", requireAdmin, async (req, res) => {
             <p>Thank you for staying with us.</p>
             <p>Best regards,</p>
             <p><strong>Ajs WomanS PG</strong><br/>
-            <img src="${iconPhone}" alt="📞" width="20" style="vertical-align:middle;"/> 8555831614<br/>
-            <img src="${iconMail}" alt="📧" width="20" style="vertical-align:middle;"/> <a href="mailto:Muthineniaswanth@gmail.com">Muthineniaswanth@gmail.com</a></p>
+            <img src="${iconPhone}" alt="📞" width="20" style="vertical-align:middle;"/> ${adminPhone}<br/>
+            <img src="${iconMail}" alt="📧" width="20" style="vertical-align:middle;"/> <a href="mailto:${adminContactEmail}">${adminContactEmail}</a></p>
           `;
 
           await sendBrevoEmail({

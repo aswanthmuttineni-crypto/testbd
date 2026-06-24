@@ -2,8 +2,16 @@ function emailReady() {
   return Boolean(process.env.BREVO_API_KEY);
 }
 
+function getWhatsAppConfig() {
+  return {
+    token: String(process.env.WHATSAPP_ACCESS_TOKEN || "").trim(),
+    phoneNumberId: String(process.env.WHATSAPP_PHONE_NUMBER_ID || "").trim()
+  };
+}
+
 function whatsAppReady() {
-  return Boolean(process.env.WHATSAPP_ACCESS_TOKEN && process.env.WHATSAPP_PHONE_NUMBER_ID);
+  const { token, phoneNumberId } = getWhatsAppConfig();
+  return Boolean(token && phoneNumberId);
 }
 
 export function canSendWhatsApp() {
@@ -70,12 +78,16 @@ export async function sendBrevoEmail({ to, subject, text, html, replyTo }) {
 
 export async function sendWhatsAppText({ to, text }) {
   const version = process.env.WHATSAPP_GRAPH_VERSION || "v23.0";
-  const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
+  const { token, phoneNumberId } = getWhatsAppConfig();
+  if (!token || !phoneNumberId) {
+    throw new Error("WhatsApp configuration is incomplete");
+  }
+
   const res = await fetch(`https://graph.facebook.com/${version}/${phoneNumberId}/messages`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`
+      Authorization: `Bearer ${token}`
     },
     body: JSON.stringify({
       messaging_product: "whatsapp",
@@ -95,19 +107,22 @@ export async function sendWhatsAppText({ to, text }) {
 
 export async function sendWhatsAppOtpTemplate({ to, code }) {
   const version = process.env.WHATSAPP_GRAPH_VERSION || "v23.0";
-  const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
+  const { token, phoneNumberId } = getWhatsAppConfig();
   const templateName = process.env.WHATSAPP_OTP_TEMPLATE_NAME;
   const languageCode = process.env.WHATSAPP_OTP_TEMPLATE_LANGUAGE || "en_US";
 
   if (!templateName) {
     throw new Error("WHATSAPP_OTP_TEMPLATE_NAME is not configured");
   }
+  if (!token || !phoneNumberId) {
+    throw new Error("WhatsApp configuration is incomplete");
+  }
 
   const res = await fetch(`https://graph.facebook.com/${version}/${phoneNumberId}/messages`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`
+      Authorization: `Bearer ${token}`
     },
     body: JSON.stringify({
       messaging_product: "whatsapp",
@@ -142,13 +157,16 @@ export async function sendWhatsAppOtpTemplate({ to, code }) {
 
 export async function sendWhatsAppTemplate({ to, templateName, languageCode = "en_US", parameters = [] }) {
   const version = process.env.WHATSAPP_GRAPH_VERSION || "v23.0";
-  const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
+  const { token, phoneNumberId } = getWhatsAppConfig();
+  if (!token || !phoneNumberId) {
+    throw new Error("WhatsApp configuration is incomplete");
+  }
 
   const res = await fetch(`https://graph.facebook.com/${version}/${phoneNumberId}/messages`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`
+      Authorization: `Bearer ${token}`
     },
     body: JSON.stringify({
       messaging_product: "whatsapp",
