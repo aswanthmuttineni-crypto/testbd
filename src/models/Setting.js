@@ -12,7 +12,7 @@ const weeklyMenuSchema = new mongoose.Schema(
 
 const settingSchema = new mongoose.Schema(
   {
-    hostelName: { type: String, default: "Hostel Management System" },
+    hostelName: { type: String, default: "Ajs Deluxe" },
     adminEmail: { type: String, default: "admin@gmail.com" },
     address: { type: String, default: "" },
     foodMenu: {

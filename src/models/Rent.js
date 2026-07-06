@@ -6,8 +6,9 @@ const rentSchema = new mongoose.Schema(
     month: { type: String, required: true },
     year: { type: Number, required: true },
     amount: { type: Number, required: true },
-    paymentDate: { type: Date, required: true },
-    status: { type: String, enum: ["PAID", "PENDING"], default: "PAID" }
+    paymentDate: { type: Date, default: null },
+    status: { type: String, enum: ["PAID", "PENDING"], default: "PAID" },
+    note: { type: String, default: "" }
   },
   { timestamps: true }
 );

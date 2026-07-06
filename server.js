@@ -15,6 +15,7 @@ import notificationRoutes from "./src/routes/notification.routes.js";
 import foodMenuRoutes from "./src/routes/foodmenu.routes.js";
 import complaintRoutes from "./src/routes/complaint.routes.js";
 import noticeRoutes from "./src/routes/notice.routes.js";
+import { startRentScheduler } from "./src/utils/autoRent.js";
 
 dotenv.config();
 
@@ -87,5 +88,6 @@ export default app;
 if (process.env.NODE_ENV !== 'test') {
   connectDb().then(() => {
     app.listen(port, () => console.log(`Hostel API running on http://localhost:${port}`));
+    startRentScheduler();
   });
 }

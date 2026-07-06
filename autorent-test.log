@@ -1,0 +1,120 @@
+MongoDB connected
+[AutoRent] Scheduler started.
+Hostel API running on http://localhost:5000
+[AutoRent] Created PENDING: aswanth - July 2026
+[AutoRent] Created PENDING: yash - July 2026
+[AutoRent] Done. Created 2 pending rent records.
+CastError: Cast to date failed for value "undefined" (type string) at path "paymentDate"
+    at SchemaDate.cast (d:\test\server\node_modules\mongoose\lib\schema\date.js:379:11)
+    at SchemaType.applySetters (d:\test\server\node_modules\mongoose\lib\schemaType.js:1288:12)
+    at SchemaDate.castForQuery (d:\test\server\node_modules\mongoose\lib\schema\date.js:428:19)
+    at castUpdateVal (d:\test\server\node_modules\mongoose\lib\helpers\query\castUpdate.js:633:19)
+    at walkUpdatePath (d:\test\server\node_modules\mongoose\lib\helpers\query\castUpdate.js:438:24)
+    at castUpdate (d:\test\server\node_modules\mongoose\lib\helpers\query\castUpdate.js:144:7)
+    at model.Query._castUpdate (d:\test\server\node_modules\mongoose\lib\query.js:4874:10)
+    at model.Query._findOneAndUpdate (d:\test\server\node_modules\mongoose\lib\query.js:3497:23)
+    at model.Query.exec (d:\test\server\node_modules\mongoose\lib\query.js:4627:80)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+  stringValue: '"undefined"',
+  messageFormat: undefined,
+  kind: 'date',
+  value: 'undefined',
+  path: 'paymentDate',
+  reason: AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(false)
+  
+      at castDate (d:\test\server\node_modules\mongoose\lib\cast\date.js:40:10)
+      at SchemaDate.cast (d:\test\server\node_modules\mongoose\lib\schema\date.js:377:12)
+      at SchemaType.applySetters (d:\test\server\node_modules\mongoose\lib\schemaType.js:1288:12)
+      at SchemaDate.castForQuery (d:\test\server\node_modules\mongoose\lib\schema\date.js:428:19)
+      at castUpdateVal (d:\test\server\node_modules\mongoose\lib\helpers\query\castUpdate.js:633:19)
+      at walkUpdatePath (d:\test\server\node_modules\mongoose\lib\helpers\query\castUpdate.js:438:24)
+      at castUpdate (d:\test\server\node_modules\mongoose\lib\helpers\query\castUpdate.js:144:7)
+      at model.Query._castUpdate (d:\test\server\node_modules\mongoose\lib\query.js:4874:10)
+      at model.Query._findOneAndUpdate (d:\test\server\node_modules\mongoose\lib\query.js:3497:23)
+      at model.Query.exec (d:\test\server\node_modules\mongoose\lib\query.js:4627:80) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '=='
+  },
+  valueType: 'string'
+}
+CastError: Cast to date failed for value "undefined" (type string) at path "paymentDate"
+    at SchemaDate.cast (d:\test\server\node_modules\mongoose\lib\schema\date.js:379:11)
+    at SchemaType.applySetters (d:\test\server\node_modules\mongoose\lib\schemaType.js:1288:12)
+    at SchemaDate.castForQuery (d:\test\server\node_modules\mongoose\lib\schema\date.js:428:19)
+    at castUpdateVal (d:\test\server\node_modules\mongoose\lib\helpers\query\castUpdate.js:633:19)
+    at walkUpdatePath (d:\test\server\node_modules\mongoose\lib\helpers\query\castUpdate.js:438:24)
+    at castUpdate (d:\test\server\node_modules\mongoose\lib\helpers\query\castUpdate.js:144:7)
+    at model.Query._castUpdate (d:\test\server\node_modules\mongoose\lib\query.js:4874:10)
+    at model.Query._findOneAndUpdate (d:\test\server\node_modules\mongoose\lib\query.js:3497:23)
+    at model.Query.exec (d:\test\server\node_modules\mongoose\lib\query.js:4627:80)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+  stringValue: '"undefined"',
+  messageFormat: undefined,
+  kind: 'date',
+  value: 'undefined',
+  path: 'paymentDate',
+  reason: AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(false)
+  
+      at castDate (d:\test\server\node_modules\mongoose\lib\cast\date.js:40:10)
+      at SchemaDate.cast (d:\test\server\node_modules\mongoose\lib\schema\date.js:377:12)
+      at SchemaType.applySetters (d:\test\server\node_modules\mongoose\lib\schemaType.js:1288:12)
+      at SchemaDate.castForQuery (d:\test\server\node_modules\mongoose\lib\schema\date.js:428:19)
+      at castUpdateVal (d:\test\server\node_modules\mongoose\lib\helpers\query\castUpdate.js:633:19)
+      at walkUpdatePath (d:\test\server\node_modules\mongoose\lib\helpers\query\castUpdate.js:438:24)
+      at castUpdate (d:\test\server\node_modules\mongoose\lib\helpers\query\castUpdate.js:144:7)
+      at model.Query._castUpdate (d:\test\server\node_modules\mongoose\lib\query.js:4874:10)
+      at model.Query._findOneAndUpdate (d:\test\server\node_modules\mongoose\lib\query.js:3497:23)
+      at model.Query.exec (d:\test\server\node_modules\mongoose\lib\query.js:4627:80) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '=='
+  },
+  valueType: 'string'
+}
+CastError: Cast to date failed for value "undefined" (type string) at path "paymentDate"
+    at SchemaDate.cast (d:\test\server\node_modules\mongoose\lib\schema\date.js:379:11)
+    at SchemaType.applySetters (d:\test\server\node_modules\mongoose\lib\schemaType.js:1288:12)
+    at SchemaDate.castForQuery (d:\test\server\node_modules\mongoose\lib\schema\date.js:428:19)
+    at castUpdateVal (d:\test\server\node_modules\mongoose\lib\helpers\query\castUpdate.js:633:19)
+    at walkUpdatePath (d:\test\server\node_modules\mongoose\lib\helpers\query\castUpdate.js:438:24)
+    at castUpdate (d:\test\server\node_modules\mongoose\lib\helpers\query\castUpdate.js:144:7)
+    at model.Query._castUpdate (d:\test\server\node_modules\mongoose\lib\query.js:4874:10)
+    at model.Query._findOneAndUpdate (d:\test\server\node_modules\mongoose\lib\query.js:3497:23)
+    at model.Query.exec (d:\test\server\node_modules\mongoose\lib\query.js:4627:80)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+  stringValue: '"undefined"',
+  messageFormat: undefined,
+  kind: 'date',
+  value: 'undefined',
+  path: 'paymentDate',
+  reason: AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(false)
+  
+      at castDate (d:\test\server\node_modules\mongoose\lib\cast\date.js:40:10)
+      at SchemaDate.cast (d:\test\server\node_modules\mongoose\lib\schema\date.js:377:12)
+      at SchemaType.applySetters (d:\test\server\node_modules\mongoose\lib\schemaType.js:1288:12)
+      at SchemaDate.castForQuery (d:\test\server\node_modules\mongoose\lib\schema\date.js:428:19)
+      at castUpdateVal (d:\test\server\node_modules\mongoose\lib\helpers\query\castUpdate.js:633:19)
+      at walkUpdatePath (d:\test\server\node_modules\mongoose\lib\helpers\query\castUpdate.js:438:24)
+      at castUpdate (d:\test\server\node_modules\mongoose\lib\helpers\query\castUpdate.js:144:7)
+      at model.Query._castUpdate (d:\test\server\node_modules\mongoose\lib\query.js:4874:10)
+      at model.Query._findOneAndUpdate (d:\test\server\node_modules\mongoose\lib\query.js:3497:23)
+      at model.Query.exec (d:\test\server\node_modules\mongoose\lib\query.js:4627:80) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '=='
+  },
+  valueType: 'string'
+}

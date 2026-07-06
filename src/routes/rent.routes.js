@@ -20,15 +20,23 @@ router.get("/", requireAdmin, async (_req, res, next) => {
   } catch (error) { next(error); }
 });
 
+function sanitizeRent(body) {
+  const data = { ...body };
+  if (!data.paymentDate || data.paymentDate === 'undefined' || data.paymentDate === '') {
+    delete data.paymentDate;
+  }
+  return data;
+}
+
 router.post("/", requireAdmin, async (req, res, next) => {
   try {
-    res.status(201).json(await Rent.create(req.body));
+    res.status(201).json(await Rent.create(sanitizeRent(req.body)));
   } catch (error) { next(error); }
 });
 
 router.put("/:id", requireAdmin, async (req, res, next) => {
   try {
-    const rent = await Rent.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    const rent = await Rent.findByIdAndUpdate(req.params.id, sanitizeRent(req.body), { new: true, runValidators: false });
     if (!rent) return res.status(404).json({ message: "Rent payment not found" });
     res.json(rent);
   } catch (error) { next(error); }

@@ -10,30 +10,46 @@ const router = Router();
 router.use(protect);
 router.use(requireAdmin);
 
-router.get("/summary", async (_req, res, next) => {
+router.get("/summary", async (req, res, next) => {
   try {
-    const [rents, expenses, rooms, activeTenants, monthlyDues] = await Promise.all([
-      Rent.find().populate("tenantId", "name"),
-      Expense.find(),
+    const now = new Date();
+    const selMonth = req.query.month ? String(req.query.month) : null;
+    const selYear  = req.query.year  ? Number(req.query.year)  : null;
+
+    const rentFilter    = selMonth && selYear ? { month: selMonth, year: selYear } : {};
+    const expenseFilter = selMonth && selYear
+      ? { date: {
+          $gte: new Date(`${selYear}-${String(MONTHS.indexOf(selMonth) + 1).padStart(2,'0')}-01`),
+          $lt:  new Date(`${selYear}-${String(MONTHS.indexOf(selMonth) + 2).padStart(2,'0')}-01`)
+        }}
+      : {};
+
+    const [rents, expenses, rooms, activeTenants, monthlyDues, allRents] = await Promise.all([
+      Rent.find(rentFilter).populate("tenantId", "name"),
+      Expense.find(expenseFilter),
       Room.find(),
       Tenant.find({ status: "ACTIVE" }),
-      getMonthlyDues()
+      getMonthlyDues(),
+      Rent.find().populate("tenantId", "name")   // always full for charts
     ]);
-    const totalIncome = rents.filter((rent) => rent.status === "PAID").reduce((sum, rent) => sum + rent.amount, 0);
-    const pendingRent = rents.filter((rent) => rent.status === "PENDING").reduce((sum, rent) => sum + rent.amount, 0);
-    const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
-    const occupiedRoomIds = new Set(activeTenants.map((tenant) => String(tenant.roomId)));
+
+    const totalIncome    = rents.filter(r => r.status === "PAID").reduce((s, r) => s + r.amount, 0);
+    const pendingRent    = rents.filter(r => r.status === "PENDING").reduce((s, r) => s + r.amount, 0);
+    const totalExpenses  = expenses.reduce((s, e) => s + e.amount, 0);
+    const totalBeds      = rooms.reduce((s, r) => s + r.capacity, 0);
+    const occupiedBedCount = activeTenants.length;
+
     res.json({
       totalIncome,
       totalExpenses,
       profit: totalIncome - totalExpenses,
-      occupiedRooms: occupiedRoomIds.size,
-      vacantRooms: Math.max(rooms.length - occupiedRoomIds.size, 0),
+      occupiedRooms: occupiedBedCount,
+      vacantRooms: Math.max(totalBeds - occupiedBedCount, 0),
       activeTenantCount: activeTenants.length,
       pendingRent,
-      currentMonthDues: monthlyDues.dues.reduce((sum, due) => sum + due.amount, 0),
+      currentMonthDues: monthlyDues.dues.reduce((s, d) => s + d.amount, 0),
       monthlyDues,
-      rents,
+      rents: allRents,
       expenses
     });
   } catch (error) {

@@ -8,8 +8,8 @@ router.get('/public', async (_req, res, next) => {
   try { res.json(await Notice.find().sort({ pinned: -1, createdAt: -1 }).limit(20)); } catch (error) { next(error); }
 });
 
-router.get('/', protect, requireAdmin, async (_req, res, next) => {
-  try { res.json(await Notice.find().sort({ createdAt: -1 })); } catch (error) { next(error); }
+router.get('/', protect, async (_req, res, next) => {
+  try { res.json(await Notice.find().sort({ pinned: -1, createdAt: -1 })); } catch (error) { next(error); }
 });
 
 router.post('/', protect, requireAdmin, async (req, res, next) => {
