@@ -1,8 +1,10 @@
 import { Router } from "express";
 import Setting from "../models/Setting.js";
+import User from "../models/User.js";
 import { protect, requireAdmin } from "../middleware/auth.js";
 import { getMonthlyDues } from "../utils/monthlyDues.js";
 import { canSendWhatsApp, sendBrevoEmail, sendWhatsAppTemplate, sendWhatsAppText } from "../utils/messageDelivery.js";
+import { canSendPush, sendPushToTokens } from "../utils/pushNotifications.js";
 
 const router = Router();
 router.use(protect);
@@ -417,6 +419,98 @@ router.post("/monthly-dues/reminders", requireAdmin, async (req, res) => {
   } catch (error) {
     console.error("Due reminder error:", error?.message);
     res.status(500).json({ message: error?.message || "Due reminder failed" });
+  }
+});
+
+/* ------------------------------------------------------------------ */
+/* Free push notifications (Firebase Cloud Messaging)                  */
+/* ------------------------------------------------------------------ */
+
+// Any logged-in user (tenant or admin) registers the FCM token of the device
+// they are using so the server can push notifications to it later.
+router.post("/fcm-token", async (req, res, next) => {
+  try {
+    const token = String(req.body?.token || "").trim();
+    if (!token) return res.status(400).json({ message: "token required" });
+    await User.updateOne({ _id: req.user.id }, { $addToSet: { fcmTokens: token } });
+    res.json({ message: "Device registered for notifications" });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Called when a user disables notifications or logs out on a device.
+router.delete("/fcm-token", async (req, res, next) => {
+  try {
+    const token = String(req.body?.token || "").trim();
+    if (!token) return res.status(400).json({ message: "token required" });
+    await User.updateOne({ _id: req.user.id }, { $pull: { fcmTokens: token } });
+    res.json({ message: "Device unregistered" });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Push a rent-due reminder to every tenant who has a pending due AND has
+// enabled notifications on at least one device.
+router.post("/monthly-dues/push", requireAdmin, async (_req, res) => {
+  try {
+    if (!canSendPush()) {
+      return res.status(501).json({
+        message: "Push notifications are not configured. Add the FIREBASE_* environment variables and install firebase-admin."
+      });
+    }
+
+    const monthlyDues = await getMonthlyDues();
+    const period = `${monthlyDues.month} ${monthlyDues.year}`;
+
+    // Tenants are linked to their login account by email. Load every tenant
+    // user that owes rent this month in one query, then map email -> tokens.
+    const emails = monthlyDues.dues.map((d) => d.tenant.email).filter(Boolean).map((e) => e.toLowerCase());
+    const users = emails.length
+      ? await User.find({ role: "TENANT", email: { $in: emails } }).select("email fcmTokens")
+      : [];
+    const tokensByEmail = new Map(users.map((u) => [u.email.toLowerCase(), u.fcmTokens || []]));
+
+    const sent = [];
+    const skipped = [];
+    const errors = [];
+    const invalidTokens = [];
+
+    for (const due of monthlyDues.dues) {
+      const email = (due.tenant.email || "").toLowerCase();
+      const tokens = email ? tokensByEmail.get(email) || [] : [];
+      if (!tokens.length) {
+        skipped.push({ tenant: due.tenant.name, reason: email ? "Notifications not enabled on any device" : "No linked account" });
+        continue;
+      }
+
+      try {
+        const result = await sendPushToTokens({
+          tokens,
+          title: "🔔 Rent Reminder",
+          body: `Hi ${due.tenant.name}, your hostel rent of ₹${due.amount} for ${period} is due. Please pay soon.`,
+          data: { type: "RENT_DUE", month: monthlyDues.month, year: monthlyDues.year, amount: due.amount, link: "/portal" }
+        });
+        if (result.successCount) sent.push({ tenant: due.tenant.name, devices: result.successCount });
+        else skipped.push({ tenant: due.tenant.name, reason: "All devices unreachable" });
+        if (result.invalidTokens.length) invalidTokens.push({ email, tokens: result.invalidTokens });
+      } catch (error) {
+        errors.push({ tenant: due.tenant.name, message: error.message });
+      }
+    }
+
+    // Clean up tokens FCM told us are no longer valid.
+    await Promise.all(
+      invalidTokens.map(({ email, tokens }) =>
+        User.updateOne({ email, role: "TENANT" }, { $pull: { fcmTokens: { $in: tokens } } })
+      )
+    );
+
+    res.json({ message: "Due push notifications processed", sent, skipped, errors, monthlyDues });
+  } catch (error) {
+    console.error("Push due reminder error:", error?.message);
+    res.status(500).json({ message: error?.message || "Push due reminder failed" });
   }
 });
 
